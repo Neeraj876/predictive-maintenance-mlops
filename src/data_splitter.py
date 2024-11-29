@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-
+from typing import Tuple
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, KFold
@@ -87,20 +87,20 @@ class KFoldSplitStrategy(DataSplittingStrategy):
         print("Encoded_data is: ", X)
 
         logging.info("Performing K-Fold cross-validation split.")
-        y_binary = X['Target']
+        #y_binary = X['Target']
         y_multiclass = X['Failure Type_encoded']
         X = X.drop(columns=['Target', 'Failure Type_encoded'])
 
         for fold, (train_idx, val_idx) in enumerate(self.kf.split(X)):
             X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
-            y_train_binary, y_val_binary = y_binary.iloc[train_idx], y_binary.iloc[val_idx]
+            # y_train_binary, y_val_binary = y_binary.iloc[train_idx], y_binary.iloc[val_idx]
             y_train_multi, y_val_multi = y_multiclass.iloc[train_idx], y_multiclass.iloc[val_idx]
 
             print('X_train labels', X_train.columns)
             print('X_train is', X_train)
             logging.info("K-Fold cross-validation split completed.")
-            # return X_train, X_val, y_train_binary, y_val_binary, y_train_multi, y_val_multi, val_idx
-            return X_train, X_val, y_train_binary, y_val_binary
+            # return X_train, X_val, y_train_binary, y_val_binary, y_train_multi, y_val_multi
+            return X_train, X_val, y_train_multi, y_val_multi
 
 # Context Class for Data Splitting
 # --------------------------------

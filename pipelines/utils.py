@@ -4,8 +4,6 @@ import re
 
 from src.feature_engineering import FeatureEngineer, labelEncoding 
 
-
-
 def get_data_for_test():
     try:
         df = pd.read_csv('/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/extracted_data/predictive_maintenance.csv')

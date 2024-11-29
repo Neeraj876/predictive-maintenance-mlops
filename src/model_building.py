@@ -164,7 +164,7 @@ class BinaryModelTrainingStrategy(ModelBuildingStrategy):
         logging.info("Cleaning column names in X_train.")
         # Clean column names in X_train to avoid special characters issues
         X_train.columns = [re.sub(r"[<>[\]]", "", col) for col in X_train.columns]
-        print("Cleaned column names:", X_train.columns)
+        print("X_train_binary Cleaned column names:", X_train.columns)
 
         # Binary Classification Model
         model = XGBClassifier(random_state=RANDOM_STATE)
@@ -172,8 +172,8 @@ class BinaryModelTrainingStrategy(ModelBuildingStrategy):
         logging.info("Training Binary Classification model.")
 
         # Train the model
-        print("X_train before fitting to the model", X_train)
-        print('Expected columns', X_train.columns)
+        print("X_train_binary before fitting to the model", X_train)
+        print('Expected X_train_binary columns', X_train.columns)
         model.fit(X_train, y_train) 
 
         # Validate the model
@@ -217,7 +217,7 @@ class MulticlassModelTrainingStrategy(ModelBuildingStrategy):
 
         #multiclass_predictions = np.zeros(len(X))
         X_train.columns = [re.sub(r"[<>[\]]", "", col) for col in X_train.columns]
-        print("Cleaned column names:", X_train.columns)
+        print("X_train_multiclass_resampled Cleaned column names:", X_train.columns)
 
         # Multiclass Classification Model
         model = XGBClassifier(random_state=RANDOM_STATE)
@@ -225,7 +225,8 @@ class MulticlassModelTrainingStrategy(ModelBuildingStrategy):
         logging.info("Training Multiclass classification model.")
 
         # Train the model
-        print("X_train before fitting to the model", X_train)
+        print("X_train_multiclass_resampled before fitting to the model", X_train)
+        print('Expected X_train_multiclass_resampled columns', X_train.columns)
         model.fit(X_train, y_train)
 
         # Validate the model

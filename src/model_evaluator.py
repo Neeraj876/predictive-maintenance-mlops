@@ -56,13 +56,22 @@ class ClassificationModelEvaluationStrategy(ModelEvaluationStrategy):
         
         logging.info("Predicting using the trained model.")
         y_pred = model.predict(X_val)
-
+        
         logging.info("Calculating evaluation metrics.")
         accuracy = accuracy_score(y_val, y_pred)
-        precision = precision_score(y_val, y_pred)
-        recall = recall_score(y_val, y_pred)
-        F1_score = f1_score(y_val, y_pred)
-        roc_auc = roc_auc_score(y_val, y_pred)
+        precision = precision_score(y_val, y_pred, average="weighted")  # Adjust average as needed
+        recall = recall_score(y_val, y_pred, average="weighted")
+        F1_score = f1_score(y_val, y_pred, average="weighted")
+
+        # For ROC AUC, use predict_proba if available
+        try:
+            y_prob = model.predict_proba(X_val)
+            roc_auc = roc_auc_score(y_val, y_prob, multi_class="ovr")  # One-vs-Rest for multiclass
+        except AttributeError:
+            logging.warning("Model does not support predict_proba; skipping ROC AUC.")
+            roc_auc = None
+
+        # Confusion matrix
         Confusion_matrix = confusion_matrix(y_val, y_pred)
 
         metrics = {
@@ -79,6 +88,33 @@ class ClassificationModelEvaluationStrategy(ModelEvaluationStrategy):
         }
         logging.info(f"Model Evaluation Metrics: {metrics}")
         return metrics["F1 Score"]
+
+        #     # Calculate metrics for multiclass classification
+        #     accuracy = accuracy_score(y_val, y_pred)
+        #     precision = precision_score(y_val, y_pred, average=average, zero_division=0)
+        #     recall = recall_score(y_val, y_pred, average=average, zero_division=0)
+        #     F1_score = f1_score(y_val, y_pred, average=average, zero_division=0)
+
+        #     # ROC AUC for multiclass requires one-vs-rest approach
+        #     roc_auc = None  # Not computed for multiclass directly (can implement one-vs-rest if needed)
+        
+        # # Calculate confusion matrix (same logic for both binary and multiclass)
+        # Confusion_matrix = confusion_matrix(y_val, y_pred)
+
+        # metrics = {
+        #     "Accuracy": accuracy,
+        #     "Precision": precision,
+        #     "Recall": recall,
+        #     "F1 Score": F1_score,
+        #     "ROC AUC": roc_auc,
+        #     "Confusion Matrix": Confusion_matrix,
+        #     "True Negatives": Confusion_matrix[0][0] if Confusion_matrix.size > 1 else 0,
+        #     "False Positives": Confusion_matrix[0][1] if Confusion_matrix.size > 1 else 0,
+        #     "False Negatives": Confusion_matrix[1][0] if Confusion_matrix.size > 1 else 0,
+        #     "True Positives": Confusion_matrix[1][1] if Confusion_matrix.size > 1 else 0,
+        # }
+        # logging.info(f"Model Evaluation Metrics: {metrics}")
+        # return metrics["F1 Score"]
     
 # Context Class for Model Evaluation
 class ModelEvaluator:

@@ -1,4 +1,3 @@
-import mlflow_cleanup
 import logging
 from typing import Dict, Any, List
 import pandas as pd
@@ -39,6 +38,7 @@ def model_evaluation_step(
         dict: A dictionary containing evaluation metrics.
     """
     try:
+        logger.info("Evaluating multiclass classification model.")
         evaluator = ModelEvaluator(ClassificationModelEvaluationStrategy())
         f1_score = evaluator.evaluate(model, X_val, y_val)
 
@@ -55,5 +55,4 @@ def model_evaluation_step(
 
 # Example usage
 if __name__ == "__main__":
-    
     pass
