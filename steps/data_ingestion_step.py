@@ -1,17 +1,41 @@
+import logging
+
 import pandas as pd
-from src.ingest_data import DataIngestorFactory
+
 from zenml import step
 
+from src.ingest_data import DataLoader
 
-@step
-def data_ingestion_step(file_path: str) -> pd.DataFrame:
-    """Ingest data from a ZIP file using the appropriate DataIngestor."""
-    # Determine the file extension
-    file_extension = "zip"  # Since we're dealing with ZIP files, this is hardcoded
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    # Get the appropriate DataIngestor
-    data_ingestor = DataIngestorFactory.get_data_ingestor(file_extension)
+@step(enable_cache=False)
+def ingest_data(
+    table_name: str , 
+) -> pd.DataFrame:
+    """Reads data from sql database and return a pandas dataframe.
 
-    # Ingest the data and load it into a DataFrame
-    df = data_ingestor.ingest(file_path)
-    return df
+    Parameters:
+        table_name : str
+        The name of the table from which to load data.
+
+    Args:
+        data: pd.DataFrame
+    """
+
+    logging.info("Started data ingestion process.")
+
+    try:
+        data_loader = DataLoader('postgresql://postgres:neeraj@localhost:5432/predictive_pg')
+        data_loader.load_data(table_name) 
+        df = data_loader.get_data()  
+        if df.empty:
+            logging.warning("No data was loaded. Check the table name or the database content.")
+        else:
+            logging.info(f"Data ingestion completed. Number of records loaded: {len(df)}.")
+    
+        logging.info("Data loaded successfully")
+
+        return df  
+    except Exception as e:
+        logging.error(f"Error while reading data from {table_name}: {e}")
+        raise e

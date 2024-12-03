@@ -36,6 +36,9 @@ DEPLOY_AND_PREDICT = "deploy_and_predict"
 
 def main(config: str, min_accuracy: float):
     """Run the MLflow example pipeline."""
+
+    # model_name = 'predictive'
+
     # get the MLflow model deployer stack component
     mlflow_model_deployer_component = MLFlowModelDeployer.get_active_model_deployer() 
 
@@ -45,7 +48,7 @@ def main(config: str, min_accuracy: float):
     if deploy:
         # Initialize a continuous deployment pipeline run
         continuous_deployment_pipeline(
-        data_path="/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/data/archive.zip",
+        data_path='predictive_maintenance',
         min_accuracy=min_accuracy,
         workers=3,
         timeout=60,)
@@ -67,7 +70,7 @@ def main(config: str, min_accuracy: float):
     existing_services = mlflow_model_deployer_component.find_model_server(
         pipeline_name="continuous_deployment_pipeline",
         pipeline_step_name="mlflow_model_deployer_step",
-        model_name="model",
+        model_name='model',
     )
 
     if existing_services:

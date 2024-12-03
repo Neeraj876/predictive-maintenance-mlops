@@ -31,7 +31,7 @@ class ModelEvaluationStrategy(ABC):
             y_test (pd.Series): The testing data labels/target.
 
         Returns:
-            dict: A dictionary containing evaluation metrics.
+            Any: A dictionary containing evaluation metrics or a single evaluation metric.
         """
         pass
 
@@ -47,7 +47,7 @@ class ClassificationModelEvaluationStrategy(ModelEvaluationStrategy):
             y_test (pd.Series): The testing data labels/target.
 
         Returns:
-            dict: A dictionary containing accuracy, precision, recall, F1 score, ROC AUC, and confusion matrix.
+            Any: A dictionary containing accuracy, precision, recall, F1 score, ROC AUC, and confusion matrix or a single evaluation metric.
         """
 
         logging.info("Cleaning column names in X_val.")
@@ -66,7 +66,8 @@ class ClassificationModelEvaluationStrategy(ModelEvaluationStrategy):
         # For ROC AUC, use predict_proba if available
         try:
             y_prob = model.predict_proba(X_val)
-            roc_auc = roc_auc_score(y_val, y_prob, multi_class="ovr")  # One-vs-Rest for multiclass
+            # One-vs-Rest for multiclass
+            roc_auc = roc_auc_score(y_val, y_prob, multi_class="ovr")  
         except AttributeError:
             logging.warning("Model does not support predict_proba; skipping ROC AUC.")
             roc_auc = None
@@ -88,33 +89,6 @@ class ClassificationModelEvaluationStrategy(ModelEvaluationStrategy):
         }
         logging.info(f"Model Evaluation Metrics: {metrics}")
         return metrics["F1 Score"]
-
-        #     # Calculate metrics for multiclass classification
-        #     accuracy = accuracy_score(y_val, y_pred)
-        #     precision = precision_score(y_val, y_pred, average=average, zero_division=0)
-        #     recall = recall_score(y_val, y_pred, average=average, zero_division=0)
-        #     F1_score = f1_score(y_val, y_pred, average=average, zero_division=0)
-
-        #     # ROC AUC for multiclass requires one-vs-rest approach
-        #     roc_auc = None  # Not computed for multiclass directly (can implement one-vs-rest if needed)
-        
-        # # Calculate confusion matrix (same logic for both binary and multiclass)
-        # Confusion_matrix = confusion_matrix(y_val, y_pred)
-
-        # metrics = {
-        #     "Accuracy": accuracy,
-        #     "Precision": precision,
-        #     "Recall": recall,
-        #     "F1 Score": F1_score,
-        #     "ROC AUC": roc_auc,
-        #     "Confusion Matrix": Confusion_matrix,
-        #     "True Negatives": Confusion_matrix[0][0] if Confusion_matrix.size > 1 else 0,
-        #     "False Positives": Confusion_matrix[0][1] if Confusion_matrix.size > 1 else 0,
-        #     "False Negatives": Confusion_matrix[1][0] if Confusion_matrix.size > 1 else 0,
-        #     "True Positives": Confusion_matrix[1][1] if Confusion_matrix.size > 1 else 0,
-        # }
-        # logging.info(f"Model Evaluation Metrics: {metrics}")
-        # return metrics["F1 Score"]
     
 # Context Class for Model Evaluation
 class ModelEvaluator:
@@ -147,7 +121,7 @@ class ModelEvaluator:
             y_test (pd.Series): The testing data labels/target.
 
         Returns:
-            dict: A dictionary containing evaluation metrics.
+            Any: A dictionary containing evaluation metrics or a single evaluation metric.
         """
         logging.info("Evaluating the model using the selected strategy.")
         return self._strategy.evaluate_model(model, X_val, y_val)
@@ -155,14 +129,4 @@ class ModelEvaluator:
 
 # Example usage
 if __name__ == "__main__":
-    # Example trained model and data (replace with actual trained model and data)
-    # model = trained_sklearn_classification_model
-    # X_test = test_data_features
-    # y_test = test_data_target
-
-    # Initialize model evaluator with a specific strategy
-    # model_evaluator = ModelEvaluator(ClassificationModelEvaluationStrategy())
-    # evaluation_metrics = model_evaluator.evaluate(model, X_test, y_test)
-    # print(evaluation_metrics)
-
     pass

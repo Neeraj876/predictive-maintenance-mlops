@@ -14,7 +14,8 @@ from zenml import step
 def feature_engineering_step(
     df: pd.DataFrame, strategy: str, features: list = None
 ) -> pd.DataFrame:
-    """Performs feature engineering using FeatureEngineer and selected strategy."""
+    """Performs feature engineering using FeatureEngineer and selected strategy.
+    """
 
     if strategy == "log":
         engineer = FeatureEngineer(LogTransformation(features))

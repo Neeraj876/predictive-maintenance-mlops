@@ -4,9 +4,7 @@ from typing import Tuple
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, KFold
-#from config import RANDOM_STATE, N_SPLITS
-#from feature_engineering import y_bin, y_multiclass
-
+from config import RANDOM_STATE, N_SPLITS
 
 # Setup logging configuration
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -23,17 +21,16 @@ class DataSplittingStrategy(ABC):
 
         Parameters:
         df (pd.DataFrame): The input DataFrame to be split.
-        target_column (str): The name of the target column.
 
         Returns:
-        X_train, X_test, y_train, y_test: The training and testing splits for features and target.
+        X_train, X_val, y_train_multi, y_val_multi: The training and validation splits for features and target for each fold.
         """
         pass
     
 # Implement the Concrete Strategy for K-Fold Cross-Validation
 # ---------------------------------------------
 class KFoldSplitStrategy(DataSplittingStrategy):
-    def __init__(self, n_splits=5, random_state=42):
+    def __init__(self, n_splits=N_SPLITS, random_state=RANDOM_STATE):
         """
         Initializes the KFoldSplitStrategy with K-Fold parameters.
 
@@ -49,10 +46,9 @@ class KFoldSplitStrategy(DataSplittingStrategy):
 
         Parameters:
         X (pd.DataFrame): Label Encoded Dataframe. 
-       
 
         Yields:
-        X_train, X_val, y_train, y_val: The training and validation splits for features and target for each fold.
+        X_train, X_val, y_train_multi, y_val_multi: The training and validation splits for features and target for each fold.
         """
     
         # splits = []
@@ -70,36 +66,19 @@ class KFoldSplitStrategy(DataSplittingStrategy):
         # # Return all splits
         # return splits
 
-        # # Define the list of categorical columns that need to be encoded
-        # categorical_cols = ["Type", "Product ID", "Failure Type"]
-
-        # # Define the list of numerical columns to be used as features
-        # numerical_cols = [
-        #     "Air temperature [K]",
-        #     "Process temperature [K]",
-        #     "Rotational speed [rpm]",
-        #     "Torque [Nm]",
-        #     "Tool wear [min]",
-        # ]
-
-
-          # feature_cols = numerical_cols + [col + "_encoded" for col in categorical_cols]
         print("Encoded_data is: ", X)
 
         logging.info("Performing K-Fold cross-validation split.")
-        #y_binary = X['Target']
         y_multiclass = X['Failure Type_encoded']
-        X = X.drop(columns=['Target', 'Failure Type_encoded'])
+        X = X.drop(columns=['Target', 'Failure Type_encoded', 'id'])
 
         for fold, (train_idx, val_idx) in enumerate(self.kf.split(X)):
             X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
-            # y_train_binary, y_val_binary = y_binary.iloc[train_idx], y_binary.iloc[val_idx]
             y_train_multi, y_val_multi = y_multiclass.iloc[train_idx], y_multiclass.iloc[val_idx]
 
             print('X_train labels', X_train.columns)
             print('X_train is', X_train)
             logging.info("K-Fold cross-validation split completed.")
-            # return X_train, X_val, y_train_binary, y_val_binary, y_train_multi, y_val_multi
             return X_train, X_val, y_train_multi, y_val_multi
 
 # Context Class for Data Splitting
@@ -131,12 +110,10 @@ class DataSplitter:
 
         Parameters:
         df (pd.DataFrame): The input DataFrame to be split.
-        target_column (str): The name of the target column.
 
         Returns:
-        X_train, X_test, y_train, y_test: The training and testing splits for features and target.
+        X_train, X_val, y_train_multi, y_val_multi: The training and testing splits for features and target.
         """
-        logging.info("Splitting data using the selected strategy.")
         return self._strategy.split_data(X)
 
 # Example usage

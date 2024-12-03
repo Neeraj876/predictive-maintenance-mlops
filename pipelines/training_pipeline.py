@@ -1,10 +1,10 @@
-from steps.data_ingestion_step import data_ingestion_step
+from steps.data_ingestion_step import ingest_data
 from steps.feature_engineering_step import feature_engineering_step
 from steps.data_splitter_step import data_splitter_step
 from steps.data_resampling_step import data_resampler_step
 from steps.model_building_step import model_building_step
 from steps.model_evaluator_step import model_evaluation_step
-from zenml import Model, pipeline, step
+from zenml import Model, pipeline
 
 @pipeline(
     model=Model(
@@ -17,9 +17,7 @@ def ml_pipeline():
     """Define an end-to-end machine learning pipeline."""
 
     # Data Ingestion Step
-    raw_data = data_ingestion_step(
-        file_path="/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/data/archive.zip"
-    )
+    raw_data = ingest_data('predictive_maintenance')
 
     # Feature Engineering Step
     encoded_data = feature_engineering_step(

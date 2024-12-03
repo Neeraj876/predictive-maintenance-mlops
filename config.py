@@ -23,3 +23,5 @@ NUMERICAL_COLS = [
 
 # K-Fold configuration
 N_SPLITS = 5
+
+db_uri = "postgresql://postgres:neeraj@localhost:5432/predictive_pg"

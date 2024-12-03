@@ -7,21 +7,10 @@ from zenml import step
 @step()
 def data_resampler_step(
     X_train: pd.DataFrame, 
-    # y_train_binary: pd.Series, 
     y_train_multiclass: pd.Series
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Resample the data using SMOTE and Undersampling using DataResampler and a chosen strategy.
-
-    Parameters:
-    - X_train: The training features.
-    - y_train_binary: The binary target variable.
-    - y_train_multiclass: The multiclass target variable.
-
-    Returns:
-    - X_train_resampled: The resampled training features.
-    - y_train_binary_resampled: The resampled binary target variable.
-    - y_train_multiclass_resampled: The resampled multiclass target variable.
+    Resample the data using DataResampler and a chosen strategy.
     """
     logging.info("Starting resampling step...")
 
@@ -35,7 +24,6 @@ def data_resampler_step(
     logging.info(f"Resampled data shapes: X_train_multiclass_resampled={X_train_multiclass_resampled.shape},  y_train_multiclass_resampled={y_train_multiclass_resampled.shape}")
 
     logging.info(f"Resampled data value counts:  y_train_multiclass_resampled={y_train_multiclass_resampled.value_counts()}")
-
 
     # Return the resampled data
     print('X_train_multiclass_resampled labels after resampling', X_train_multiclass_resampled.columns)

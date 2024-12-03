@@ -1,11 +1,10 @@
 import logging
-from typing import Tuple
+import joblib
 from abc import ABC, abstractmethod
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler, LabelEncoder
-from sklearn.feature_selection import mutual_info_classif
 
 # Setup logging configuration
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -199,7 +198,13 @@ class labelEncoding(FeatureEngineeringStrategy):
                 raise
         
         logging.info(f"Dropping original features after encoding: {self.features}")
+
+        # Save DataFrame to a CSV file
+        df.to_csv('/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/extracted_data/label_encoded.csv', index=False)
+
         df_transformed = df_transformed.drop(columns=self.features)
+
+        joblib.dump(df_transformed, "/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/saved_encoder/label.pkl")
 
         return df_transformed
 
@@ -242,28 +247,4 @@ class FeatureEngineer:
 
 # Example usage
 if __name__ == "__main__":
-    # Example dataframe
-    #df = pd.read_csv('/mnt/c/Users/HP/ml_projects/predictive_maintenance/extracted_data/predictive_maintenance.csv')
-
-    # Log Transformation Example
-    # log_transformer = FeatureEngineer(LogTransformation(features=['SalePrice', 'Gr Liv Area']))
-    # df_log_transformed = log_transformer.apply_feature_engineering(df)
-
-    # Standard Scaling Example
-    # standard_scaler = FeatureEngineer(StandardScaling(features=['SalePrice', 'Gr Liv Area']))
-    # df_standard_scaled = standard_scaler.apply_feature_engineering(df)
-
-    # Min-Max Scaling Example
-    # minmax_scaler = FeatureEngineer(MinMaxScaling(features=['SalePrice', 'Gr Liv Area'], feature_range=(0, 1)))
-    # df_minmax_scaled = minmax_scaler.apply_feature_engineering(df)
-
-    # One-Hot Encoding Example
-    # onehot_encoder = FeatureEngineer(OneHotEncoding(features=['Neighborhood']))
-    # df_onehot_encoded = onehot_encoder.apply_feature_engineering(df)
-
-    # Label Encoding Example
-    # label_encoder = FeatureEngineer(label_encoding(features=["Type", "Product ID", "Failure Type"]))
-    # df_label_encoded = label_encoder.apply_feature_engineering(df)
-    # print(df_label_encoded)
-
     pass

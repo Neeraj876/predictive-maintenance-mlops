@@ -2,7 +2,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -27,7 +26,7 @@ class ModelBuildingStrategy(ABC):
             y_train (pd.Series): The training data labels/target.
 
         Returns:
-            Any: A trained scikit-learn model instance.
+            Any: A trained classification model instance.
         """
         pass
 
@@ -144,13 +143,14 @@ class RandomForestStrategy(ModelBuildingStrategy):
 class BinaryModelTrainingStrategy(ModelBuildingStrategy):
     def build_and_train_model(self, X_train: pd.DataFrame, y_train: pd.Series):
         """
-        Train and evaluate a binary classification model using K-Fold cross-validation.
+        Train a XGBClassifier model on the provided training data.
 
         Parameters:
-        
+            X_train (pd.DataFrame): The training data features.
+            y_train (pd.Series): The training data labels/target.
+
         Returns:
-        predictions (ndarray): Predictions for the binary target variable.
-        average_f1_score (float): Average F1 score for binary classification.
+            XGBClassifier: A trained xgboost binary classification model.
         """
 
         # Ensure the inputs are of the correct type
@@ -162,6 +162,7 @@ class BinaryModelTrainingStrategy(ModelBuildingStrategy):
         logging.info("Initializing Binary classification model.")
 
         logging.info("Cleaning column names in X_train.")
+
         # Clean column names in X_train to avoid special characters issues
         X_train.columns = [re.sub(r"[<>[\]]", "", col) for col in X_train.columns]
         print("X_train_binary Cleaned column names:", X_train.columns)
@@ -176,17 +177,6 @@ class BinaryModelTrainingStrategy(ModelBuildingStrategy):
         print('Expected X_train_binary columns', X_train.columns)
         model.fit(X_train, y_train) 
 
-        # Validate the model
-        #binary_pred = model.predict(X_val)
-
-        #f1_scores.append(f1_score(y_val_binary, binary_pred))
-
-        # Save predictions for the validation indices
-        #binary_predictions[val_idx] = binary_pred
-
-        # Compute the average F1 score
-        #average_f1_score = np.mean(f1_scores)
-
         joblib.dump(model, "/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/saved_models/xgb.pkl")
 
         #logging.info("Binary classification model training completed.")
@@ -197,14 +187,14 @@ class BinaryModelTrainingStrategy(ModelBuildingStrategy):
 class MulticlassModelTrainingStrategy(ModelBuildingStrategy):
     def build_and_train_model(self, X_train: pd.DataFrame, y_train: pd.Series):
         """
-        Train and evaluate a multiclass classification model using K-Fold cross-validation.
+        Train a XGBClassifier model on the provided training data.
 
         Parameters:
-        
+            X_train (pd.DataFrame): The training data features.
+            y_train (pd.Series): The training data labels/target.
 
         Returns:
-        predictions (ndarray): Predictions for the multiclass target variable.
-        average_f1_score (float): Average F1 score for multiclass classification (if applicable).
+            XGBClassifier: A trained xgboost multiclass classification model.
         """
 
         # Ensure the inputs are of the correct type
@@ -228,11 +218,6 @@ class MulticlassModelTrainingStrategy(ModelBuildingStrategy):
         print("X_train_multiclass_resampled before fitting to the model", X_train)
         print('Expected X_train_multiclass_resampled columns', X_train.columns)
         model.fit(X_train, y_train)
-
-        # Validate the model
-        #multiclass_predictions[val_idx] = model.predict(X_val)
-
-        #f1_scores = f1_score(y_val_multi, multiclass_predictions[val_idx], average=None)
 
         joblib.dump(model, "/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/saved_models/multi.pkl")
 
@@ -262,7 +247,7 @@ class ModelBuilder:
 
     def build_model(self, X_train: pd.DataFrame, y_train: pd.Series) -> Any:
         """
-        Train the model using the set strategy.
+        Train the model using the current strategy.
 
         Parameters:
             X_train (pd.DataFrame): The training data features.
@@ -275,61 +260,6 @@ class ModelBuilder:
 
 # Example usage
 if __name__ == "__main__":
-    # import numpy as np
-    # from sklearn.model_selection import train_test_split
-    # from sklearn.datasets import make_classification
-
-    # # Configure logging
-    # logging.basicConfig(level=logging.INFO)
-
-    # # Generate synthetic data for demonstration purposes
-    # X, y = make_classification(n_samples=1000, n_features=20, n_classes=2, random_state=42)
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # # Initialize the ModelBuilder with different strategies
-    # # Logistic Regression
-    # logging.info("Training Logistic Regression Model")
-    # logistic_strategy = LogisticRegressionStrategy()
-    # logistic_builder = ModelBuilder(logistic_strategy)
-    # logistic_model = logistic_builder.train(X_train, y_train)
-    # logging.info("Logistic Regression Model Trained and Saved.")
-
-    # # XGBoost with fine-tuning
-    # logging.info("Training XGBoost Model with Fine-Tuning")
-    # xgb_strategy = XGBoostStrategy()
-    # xgb_builder = ModelBuilder(xgb_strategy)
-    # xgb_model = xgb_builder.train(X_train, y_train, fine_tuning=True)
-    # logging.info("XGBoost Model (Fine-Tuned) Trained and Saved.")
-
-    # # SVM with fine-tuning
-    # logging.info("Training SVM Model with Fine-Tuning")
-    # svm_strategy = SVCStrategy()
-    # svm_builder = ModelBuilder(svm_strategy)
-    # svm_model = svm_builder.train(X_train, y_train, fine_tuning=True)
-    # logging.info("SVM Model (Fine-Tuned) Trained and Saved.")
-
-    # # Naive Bayes
-    # logging.info("Training Naive Bayes Model")
-    # nb_strategy = NaiveBayesStrategy()
-    # nb_builder = ModelBuilder(nb_strategy)
-    # nb_model = nb_builder.train(X_train, y_train)
-    # logging.info("Naive Bayes Model Trained and Saved.")
-
-    # # Random Forest
-    # logging.info("Training Random Forest Model")
-    # rf_strategy = RandomForestStrategy()
-    # rf_builder = ModelBuilder(rf_strategy)
-    # rf_model = rf_builder.train(X_train, y_train)
-    # logging.info("Random Forest Model Trained and Saved.")
-
-    # # Example of using models on test data (Optional)
-    # test_data_sample = X_test[:5]  # Take first 5 examples for testing
-    # logging.info("Logistic Regression Prediction: %s", logistic_model.predict(test_data_sample))
-    # logging.info("XGBoost Prediction: %s", xgb_model.predict(test_data_sample))
-    # logging.info("SVM Prediction: %s", svm_model.predict(test_data_sample))
-    # logging.info("Naive Bayes Prediction: %s", nb_model.predict(test_data_sample))
-    # logging.info("Random Forest Prediction: %s", rf_model.predict(test_data_sample))
-    
     pass
 
 

@@ -1,71 +1,56 @@
-import os
-import zipfile
-from abc import ABC, abstractmethod
-
+import logging
 import pandas as pd
+from sqlalchemy import create_engine, exc
 
-# Define the abstract class for Data Ingestor
-class DataIngestor(ABC):
-    @abstractmethod
-    def ingest(self, file_path: str) -> pd.DataFrame:
-        pass
 
-# Implement a concrete class for Zip Ingestion
-class ZipDataIngestor(DataIngestor):
-    def ingest(self, file_path):
-        """Extract a .zip file and return the content as a pandas DataFrame"""
-        # Ensure the file is .zip
-        if not file_path.endswith('.zip'):
-            raise ValueError('The provided file is not a .zip file')
+class DataLoader:
+    """
+    DataLoader class encapsulates the details of connecting to a database and loading data into a pandas DataFrame.
+    """
+
+    def __init__(self, db_uri: str):
+        """
+        Initializes DataLoader class with a database URI and creates an SQLAlchemy engine.
         
-        # Extract the zip file
-        with zipfile.ZipFile(file_path, 'r') as zip_ref:
-            zip_ref.extractall('extracted_data')
+        Args:
+            db_uri (str): The database URI.
+        """
+        self.db_uri = db_uri
+        self.engine = create_engine(self.db_uri)
+        self.data = None
 
-        # Find the extracted CSV file (assuming there is one CSV file inside the zip)
-        extracted_files = os.listdir('extracted_data')
-        csv_files = [f for f in extracted_files if f.endswith('.csv')]
-        
-        if len(csv_files) == 0:
-            raise FileNotFoundError('No CSV file found in the extracted data.')
-        elif len(csv_files) > 1:
-            raise FileNotFoundError('Multiple CSV files are found. Please specify which one to use')
-        
-        # Read the CSV file into a DataFrame
-        csv_file_path = os.path.join('extracted_data', csv_files[0])
-        df = pd.read_csv(csv_file_path)
+    def load_data(self, table_name: str) -> pd.DataFrame:
+        """
+        Loads the data from the specified table in the PostgreSQL database into a DataFrame, which is stored as an instance variable self.data.
 
-        # Return the DataFrame
-        return df
-    
-# Implement a factory class to create Data Ingestors object
-class DataIngestorFactory:
-    @staticmethod
-    def get_data_ingestor(file_extension: str) -> pd.DataFrame:
-        if file_extension == 'zip':
-            return ZipDataIngestor()
+        Args:
+            table_name (str): The name of the table from which to load data.
+
+        Returns:
+            pd.DataFrame: The loaded data.
+
+        Raises:
+            ValueError: If the table does not exist or the query execution fails.
+        """
+        query = f"SELECT * FROM {table_name}"
+        try:
+            self.data = pd.read_sql_query(query, self.engine)
+            logging.info(f"Successfully loaded data from the table {table_name}.")
+            return self.data
+        except exc.SQLAlchemyError as e:
+            raise ValueError(f"Failed to execute query: {e}")
+
+    def get_data(self) -> pd.DataFrame:
+        """
+        Returns the loaded data. If no data has been loaded, it raises a ValueError.
+        
+        Returns:
+            pd.DataFrame: The loaded data.
+
+        Raises:
+            ValueError: If data has not been loaded yet.
+        """
+        if self.data is not None:
+            return self.data
         else:
-            raise ValueError(f"No ingestor available for file extension {file_extension}") 
-    
-# Example usage    
-if __name__ == "__main__":
-
-    # # Specify the file path
-    #file_path = '/mnt/c/Users/HP/ml_projects/predictive_maintenance/data/archive.zip'
-
-    # # Determine the file extension
-    #file_extension = os.path.splitext(file_path)[1][1:]
-    #print(file_extension)
-
-    # # Get the appropriate DataIngestor
-    #data_ingestor = DataIngestorFactory.get_data_ingestor(file_extension)
-    
-    # # Ingest the data and load it into a DataFrame
-    #df = data_ingestor.ingest(file_path)
-
-    # # Now df contains the DataFrame from the extracted CSV
-    #print(df.head())
-    pass
-
-
-
+            raise ValueError("Data has not been loaded yet. Please call 'load_data' first.")

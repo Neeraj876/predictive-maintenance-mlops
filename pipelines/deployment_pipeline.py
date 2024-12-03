@@ -5,18 +5,20 @@ import pandas as pd
 from zenml import pipeline, step
 from zenml.config import DockerSettings
 from zenml.constants import DEFAULT_SERVICE_START_STOP_TIMEOUT
-from zenml.integrations.constants import MLFLOW, TENSORFLOW
+from zenml.integrations.constants import MLFLOW
 from zenml.integrations.mlflow.model_deployers.mlflow_model_deployer import (
     MLFlowModelDeployer,
 )
 from zenml.integrations.mlflow.services import MLFlowDeploymentService
 from zenml.integrations.mlflow.steps import mlflow_model_deployer_step
-from zenml.steps import BaseParameters, Output
+from zenml.steps import BaseParameters
+# from pipelines.training_pipeline import ml_pipeline
+
 
 from steps.feature_engineering_step import feature_engineering_step
 from steps.data_splitter_step import data_splitter_step
 from steps.data_resampling_step import data_resampler_step
-from steps.data_ingestion_step import data_ingestion_step
+from steps.data_ingestion_step import ingest_data
 from steps.model_building_step import model_building_step
 from steps.model_evaluator_step import model_evaluation_step
 
@@ -129,13 +131,18 @@ def continuous_deployment_pipeline(
     workers: int = 3,
     timeout: int = DEFAULT_SERVICE_START_STOP_TIMEOUT,
 ):
-    raw_df = data_ingestion_step(data_path)
+    raw_df = ingest_data(data_path)
     encoded_df = feature_engineering_step(raw_df, strategy="label_encoding", features=["Type", "Product ID", "Failure Type"])
     X_train, X_val, y_train_multiclass, y_val_multiclass =  data_splitter_step(encoded_df, strategy='k_fold')
     X_train_multiclass_resampled, y_train_multiclass_resampled = data_resampler_step(X_train, y_train_multiclass)
     model = model_building_step(X_train=X_train_multiclass_resampled, y_train=y_train_multiclass_resampled)
     f1_score = model_evaluation_step(model=model, X_val=X_val, y_val=y_val_multiclass)
     deployment_decision = deployment_trigger(f1_score)
+
+    # Run the training pipeline
+    # trained_model = ml_pipeline()
+
+    # Deploy the trained model
     mlflow_model_deployer_step(
         model=model,
         deploy_decision=deployment_decision,
