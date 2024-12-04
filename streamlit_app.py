@@ -12,10 +12,7 @@ from run_deployment import main
 
 
 def main():
-    st.title("End to End Machine Predictive Maintenance Pipeline with ZenML")
-
-    # high_level_image = Image.open("_assets/high_level_overview.png")
-    # st.image(high_level_image, caption="High Level Pipeline")
+    st.title("End to End Machine Predictive Maintenance Classification Pipeline with ZenML")
 
     # whole_pipeline_image = Image.open("_assets/training_and_deployment_pipeline_updated.png")
 
@@ -25,11 +22,14 @@ def main():
      The objective here is to predict the machine failure prediction for a given machine based on features like Air temperature [k], Process temperature [k], Torque [Nm], etc. I will be using [ZenML](https://zenml.io/) to build a production-ready pipeline to predict machine failure prediction for the next machine failure.    """
     )
     # st.image(whole_pipeline_image, caption="Whole Pipeline")
-    # st.markdown(
-    #     """ 
-    # Above is a figure of the whole pipeline, we first ingest the data, clean it, train the model, and evaluate the model, and if data source changes or any hyperparameter values changes, deployment will be triggered, and (re) trains the model and if the model meets minimum accuracy requirement, the model will be deployed.
-    # """
-    # )
+    project_gif = "_assets/project_architecture.gif"
+    st.image(project_gif, caption="Project Architecture")
+
+    st.markdown(
+        """ 
+    Above is a figure of the whole pipeline, we first ingest the data, preprocess it, train the model, and evaluate the model, and if data source changes or any hyperparameter values changes, deployment will be triggered, and (re) trains the model and if the model meets minimum accuracy requirement, the model will be deployed.
+    """
+    )
 
     st.markdown(
         """ 
@@ -47,7 +47,7 @@ def main():
     | tool wear [min] |    The quality variants H/M/L add 5/3/2 minutes of tool wear to the used tool in the process. 
     """
     )
-    uid = st.sidebar.number_input("Unique Identifier (UID)")
+    udi = st.sidebar.number_input("Unique Identifier (UID)", min_value=0, step=1, format="%d")  
     # type = st.sidebar.selectbox("Type", options=["Low (1)", "Medium(2)", "High (3)"]) 
     type = st.sidebar.number_input("Type")
     product_id = st.sidebar.number_input("Product ID")
@@ -78,30 +78,30 @@ def main():
         # df = encoded_data.apply_feature_engineering(df)
         # df.drop(['Target', 'Failure Type_encoded'], axis=1, inplace=True)
         # df.columns = [re.sub(r"[<>[\]]", "", col) for col in df.columns]
-        df = pd.DataFrame(
-            {
-                "UDI": [101, 102, 103],
-                "Air temperature K": [295.5, 299.0, 300.5],
-                "Process temperature K": [310.2, 307.8, 315.0],
-                "Rotational speed rpm": [106.0, 107.0, 110.0],
-                "Torque Nm": [308.5, 310.0, 320.0],
-                "Tool wear min": [320.0, 315.0, 330.0],
-                "Type_encoded": [110.0, 111.0, 112.0],
-                "Product ID_encoded": [315.0, 320.0, 325.0]
-            }
-        )
         # df = pd.DataFrame(
         #     {
-        #         "UDI": [uid],
-        #         "Air temperature [K]": [air_temperature],
-        #         "Process temperature [K]": [process_temperature],
-        #         "Rotational speed [rpm]": [rotational_speed],
-        #         "Torque [Nm]": [torque],
-        #         "Tool wear [min]": [tool_wear],
-        #         "Type ": [type],
-        #         "Product ID": [product_id]
+        #         "UDI": [101, 102, 103],
+        #         "Air temperature K": [295.5, 299.0, 300.5],
+        #         "Process temperature K": [310.2, 307.8, 315.0],
+        #         "Rotational speed rpm": [106.0, 107.0, 110.0],
+        #         "Torque Nm": [308.5, 310.0, 320.0],
+        #         "Tool wear min": [320.0, 315.0, 330.0],
+        #         "Type_encoded": [110.0, 111.0, 112.0],
+        #         "Product ID_encoded": [315.0, 320.0, 325.0]
         #     }
         # )
+        df = pd.DataFrame(
+            {
+                "UDI": [udi],
+                "Air temperature K": [air_temperature],
+                "Process temperature K": [process_temperature],
+                "Rotational speed rpm": [rotational_speed],
+                "Torque Nm": [torque],
+                "Tool wear min": [tool_wear],
+                "Type_encoded": [type],
+                "Product ID_encoded": [product_id]
+            }
+        )
         json_list = json.loads(json.dumps(list(df.T.to_dict().values())))
         data = np.array(json_list)
         logging.info(f"Payload for prediction: {data}")

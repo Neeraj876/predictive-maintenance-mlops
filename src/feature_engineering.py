@@ -204,8 +204,6 @@ class labelEncoding(FeatureEngineeringStrategy):
 
         df_transformed = df_transformed.drop(columns=self.features)
 
-        joblib.dump(df_transformed, "/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/saved_encoder/label.pkl")
-
         return df_transformed
 
 # Context Class for Feature Engineering
