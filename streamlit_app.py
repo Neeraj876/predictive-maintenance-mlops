@@ -22,7 +22,7 @@ def main():
      The objective here is to predict the machine failure prediction for a given machine based on features like Air temperature [k], Process temperature [k], Torque [Nm], etc. I will be using [ZenML](https://zenml.io/) to build a production-ready pipeline to predict machine failure prediction for the next machine failure.    """
     )
     # st.image(whole_pipeline_image, caption="Whole Pipeline")
-    project_gif = "_assets/project_architecture.gif"
+    project_gif = "_assets/architecture.gif"
     st.image(project_gif, caption="Project Architecture")
 
     st.markdown(

@@ -1,6 +1,6 @@
 # Machine Predictive Maintenance Classification - MLOps Project
 
-![Project Architecture](_assets/project_architecture.gif)
+![Project Architecture](_assets/architecture.gif)
 
 ## Project Overview 
 This project automates machine predictive maintenance classification to predict whether a machine will fail or not as **No Failure** and the type of failure that will occur as **Heat Dissipation Failure** or **Power Failure** or **Overstrain Failure** or **Tool Wear Failure** or **Random Failures**, helping businesses understand feedback effectively while ensuring accurate model deployment and real-time predictions through cutting-edge **MLOps tools**. It integrates powerful tools like **ZenML** for pipeline management, **MLflow** for model deployment and experiment tracking, **PostgreSQL** for data ingestion, and **Streamlit** for an interactive interface, ensuring efficiency and scalability.
