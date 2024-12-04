@@ -67,7 +67,7 @@ The inference pipeline is designed to generate predictions using the deployed mo
 
 ### Streamlit
 ![Streamlit app](_assets/streamlit1.png)
-![]()
+![](_assets/streamlit.png)
 
 ## Local Setup 👨🏼‍💻
 1. **Clone the Repository**:
