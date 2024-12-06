@@ -5,7 +5,7 @@
 ## Project Overview 
 This project automates machine predictive maintenance classification to predict whether a machine will fail or not as **No Failure** and the type of failure that will occur as **Heat Dissipation Failure** or **Power Failure** or **Overstrain Failure** or **Tool Wear Failure** or **Random Failures**, helping businesses understand feedback effectively while ensuring accurate model deployment and real-time predictions through cutting-edge **MLOps tools**. It integrates powerful tools like **ZenML** for pipeline management, **MLflow** for model deployment and experiment tracking, **PostgreSQL** for data ingestion, and **Streamlit** for an interactive interface, ensuring efficiency and scalability.
 
-# The Solution
+## The Solution
 
 In order to build a real-world workflow for predicting the machine failure prediction for the next machine failure (which will help make better decisions), it is not enough to just train the model once.
 
