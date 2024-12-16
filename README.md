@@ -5,7 +5,7 @@
 ## Project Overview 
 This project automates machine predictive maintenance classification to predict whether a machine will fail or not as **No Failure** and the type of failure that will occur as **Heat Dissipation Failure** or **Power Failure** or **Overstrain Failure** or **Tool Wear Failure** or **Random Failures**, helping businesses understand feedback effectively while ensuring accurate model deployment and real-time predictions through cutting-edge **MLOps tools**. It integrates powerful tools like **ZenML** for pipeline management, **MLflow** for model deployment and experiment tracking, **PostgreSQL** for data ingestion, and **Streamlit** for an interactive interface, ensuring efficiency and scalability.
 
-# The Solution
+## The Solution
 
 In order to build a real-world workflow for predicting the machine failure prediction for the next machine failure (which will help make better decisions), it is not enough to just train the model once.
 
@@ -27,11 +27,11 @@ In this Project, we give special consideration to the [MLflow integration](https
 Our standard training pipeline consists of several steps:
 
 - **ingest_data**: Fetches data from a PostgreSQL table into a pandas DataFrame.
-- **feature_engineering_step**: The label encoding feature engineering technique is used to encode the categorical features into numerical features
+- **feature_engineering_step**: The label encoding feature engineering technique is used to encode the categorical features into numerical features.
 - **data_splitter_step**: This step splits the dataset into training and testing subsets.
 - **data_resampling_step**: This step balances the imbalanaced y_train dataset by sampling an equal number data points for each class in y_train.
 - **model_training_step**: This step will train the model and save the model using [MLflow autologging](https://www.mlflow.org/docs/latest/tracking.html).
-- **model_evaluation_step**: This step will evaluate the model and save the metrics — using **MLflow autologging** — into the artifact store.
+- **model_evaluation_step**: This step will evaluate the model and save the metrics using **MLflow autologging** into the artifact store.
 
 ![Traning Pipeline](_assets/training_pipeline.png)
 
