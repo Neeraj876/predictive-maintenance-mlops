@@ -199,10 +199,10 @@ class labelEncoding(FeatureEngineeringStrategy):
         
         logging.info(f"Dropping original features after encoding: {self.features}")
 
-        # Save DataFrame to a CSV file
-        df.to_csv('/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/extracted_data/label_encoded.csv', index=False)
-
         df_transformed = df_transformed.drop(columns=self.features)
+
+        # Save DataFrame to a CSV file
+        df_transformed.to_csv('/mnt/c/Users/HP/ml_projects/predictive_maintenance_mlops/extracted_data/label_encoded.csv', index=False)
 
         return df_transformed
 

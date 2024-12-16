@@ -51,7 +51,8 @@ def main(config: str, min_accuracy: float):
         data_path='predictive_maintenance',
         min_accuracy=min_accuracy,
         workers=3,
-        timeout=60,)
+        timeout=60,
+        )
 
     if predict:
        inference_pipeline(pipeline_name="continuous_deployment_pipeline",

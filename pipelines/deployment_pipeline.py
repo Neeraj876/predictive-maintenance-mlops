@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import numpy as np
 import pandas as pd
@@ -33,7 +34,7 @@ class DeploymentTriggerConfig(BaseParameters):
 @step(enable_cache=False)
 def dynamic_importer() -> str:
     """Downloads the latest data from a mock API."""
-    data = get_data_for_test()
+    data = get_data_for_test(for_predict=True)
     print('Data from utils', data)
     return data
 
@@ -62,29 +63,44 @@ def prediction_service_loader(
         running: when this flag is set, the step only returns a running service
         model_name: the name of the model that is deployed
     """    
-    try:
-        # get the MLflow model deployer stack component
-        model_deployer = MLFlowModelDeployer.get_active_model_deployer()
+    # get the MLflow model deployer stack component
+    model_deployer = MLFlowModelDeployer.get_active_model_deployer()
 
-        # fetch existing services with same pipeline name, step name and model name
-        existing_services = model_deployer.find_model_server(
-            pipeline_name=pipeline_name,
-            pipeline_step_name=pipeline_step_name,
-            model_name=model_name,
-            running=running,
+    # fetch existing services with same pipeline name, step name and model name
+    existing_services = model_deployer.find_model_server(
+        pipeline_name=pipeline_name,
+        pipeline_step_name=pipeline_step_name,
+        model_name=model_name,
+        running=running,
+    )
+
+    if not existing_services:
+        raise RuntimeError(
+            f"No MLflow prediction service deployed by the "
+            f"{pipeline_step_name} step in the {pipeline_name} "
+            f"pipeline for the '{model_name}' model is currently "
+            f"running."
         )
 
-        if not existing_services:
-            raise RuntimeError(
-                f"No MLflow prediction service deployed by the "
-                f"{pipeline_step_name} step in the {pipeline_name} "
-                f"pipeline for the '{model_name}' model is currently "
-                f"running."
-            )
-        return existing_services[0]
-    except Exception as e:
-        logging.error(f"Error in prediction_service_loader: {str(e)}")
-        raise
+    # Wait for the service to be running
+    # while not existing_services:
+    #     logging.info("Waiting for MLflow prediction service to be available...")
+    #     time.sleep(5)  # wait for 5 seconds before retrying
+    #     existing_services = model_deployer.find_model_server(
+    #         pipeline_name=pipeline_name,
+    #         pipeline_step_name=pipeline_step_name,
+    #         model_name=model_name,
+    #         running=running,
+    #     )
+    # return existing_services[0]
+
+    # Start the service if not already running
+    print("Existing Services:", existing_services)
+    print(type(existing_services))
+    service = existing_services[0]
+    if not service.is_running:
+        service.start(timeout=60)
+    return service
 
 @step
 def predictor(
@@ -154,10 +170,10 @@ def continuous_deployment_pipeline(
 def inference_pipeline(pipeline_name: str, pipeline_step_name: str):
     # Link all the steps artifacts together
     batch_data = dynamic_importer()
-    model_deployment_service = prediction_service_loader(
+    service = prediction_service_loader(
         pipeline_name=pipeline_name,
         pipeline_step_name=pipeline_step_name,
         running=False,
     )
-    prediction = predictor(service=model_deployment_service, data=batch_data)
+    prediction = predictor(service=service, data=batch_data)
     return prediction

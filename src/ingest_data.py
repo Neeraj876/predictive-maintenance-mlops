@@ -1,4 +1,5 @@
 import logging
+import time
 import pandas as pd
 from sqlalchemy import create_engine, exc
 
@@ -19,6 +20,25 @@ class DataLoader:
         self.engine = create_engine(self.db_uri)
         self.data = None
 
+    def timed(func):
+        """
+        Decorator function to measure the execution time of the function it decorates.
+
+        Args:
+            func (callable): The function to be decorated.
+
+        Returns:
+            callable: The decorated function.
+        """
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            result = func(*args, **kwargs)
+            end = time.time()
+            print(f"'{func.__name__}' function executed in {end - start}s")
+            return result
+        return wrapper
+
+    @timed
     def load_data(self, table_name: str) -> pd.DataFrame:
         """
         Loads the data from the specified table in the PostgreSQL database into a DataFrame, which is stored as an instance variable self.data.

@@ -7,13 +7,12 @@ from src.feature_engineering import FeatureEngineer, labelEncoding
 
 from config import db_uri
 
-def get_data_for_test():
+def get_data_for_test(for_predict: bool = False):
     try:
         logging.info("Loading data from PostgreSQL table.")
         data_loader = DataLoader(db_uri)
         data_loader.load_data('predictive_maintenance')
         df = data_loader.get_data()
-
         if df.empty:
             logging.warning("Loaded data is empty. Check database table content.")
 
